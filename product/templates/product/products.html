@@ -1,0 +1,38 @@
+{% extends "master.html" %}
+
+{% block title %}
+    All products
+{% endblock %}
+
+{% block content %}
+
+    {% if product_list %}
+        <h1>All products</h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <td>Name</td>
+                    <td>Category</td>
+                    <td>Original price</td>
+                    <td>Discounted price</td>
+                </tr>
+
+            </thead>
+            {% for product in product_list %}
+                <tr>
+                    <td>{{ product.product_name }}</td>
+                    <td>{{ product.product_category }}</td>
+                    <td>{{ product.original_price }}</td>
+                    <td>{{ product.discount_price }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    {% else %}
+
+        <p>No products available</p>
+
+    {% endif %}
+
+{% endblock %}
