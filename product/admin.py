@@ -26,4 +26,3 @@ class ProductAdmin(admin.ModelAdmin):
         'id',
         'updated_at'
     ]
-
