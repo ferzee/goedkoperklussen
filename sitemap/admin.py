@@ -5,6 +5,7 @@ from .models import Sitemap
 @admin.register(Sitemap)
 class Sitemap(admin.ModelAdmin):
     fields = [
+        'is_active',
         'id',
         'store_name',
         'sitemap_name',
@@ -12,9 +13,11 @@ class Sitemap(admin.ModelAdmin):
     ]
 
     list_display = [
+        'is_active',
         'id',
         'sitemap_name',
-        'store_name'
+        'store_name',
+        'sitemap_url'
     ]
 
     list_display_links = [

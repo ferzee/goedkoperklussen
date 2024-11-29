@@ -1,13 +1,13 @@
-from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, HttpResponseRedirect
 from django.template import loader
 
 from .models import Product
 
+
 def index(request):
-    product_list = Product.objects.all()
-    template = loader.get_template("product/products.html")
+    products = Product.objects.all()
     context = {
-        "product_list" : product_list,
+        "products": products,
     }
 
-    return HttpResponse(template.render(context, request))
+    return render(request, "product/products.html", context)

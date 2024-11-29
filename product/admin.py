@@ -9,12 +9,15 @@ class ProductAdmin(admin.ModelAdmin):
         'product_name',
         'store_name',
         'product_url',
+        'price',
         'updated_at'
     ]
 
     list_display = [
         'id',
         'product_name',
+        'store_name',
+        'price',
         'updated_at'
     ]
 
