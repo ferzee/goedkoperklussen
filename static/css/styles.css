@@ -13,12 +13,12 @@
 
 .app-header {
     background-color: #FFC107;
-    padding: 20px 0;
+    padding: 20px 0 16px;
     margin-bottom: 30px;
 }
 
 .logo {
-    font-size: 20px !important;
+    font-size: 28px !important;
 }
 
 .input-field {
@@ -27,7 +27,7 @@
     min-width: 400px;
     margin-bottom: 10px
     height: 40px;
-    padding: 10px 20px;
+    padding: 12px 20px;
 }
 
 
@@ -58,9 +58,12 @@ td {
     width: 25%;
 }
 
-.price {
-    font-size: 20px;
-    font-color: red;
+.current-price {
+    font-size: 24px;
+}
+
+.discount-price {
+    color: red !important;
 }
 
 .product-img {

@@ -50,7 +50,7 @@ class BaseScraper:
             product = Product.objects.get(product_url=url)
             product.product_name = product_name
             product.store_name = store_name
-            product.price = price
+            product.current_price = price
 
             product.save()
             print(f"Product {product_name} updated. url: {url}")

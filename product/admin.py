@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Product
+from .models import Product, ProductPriceLine
+
+
+class ProductPriceLineInline(admin.TabularInline):
+    model = ProductPriceLine
+    extra = 0  # No extra empty forms by default
+    readonly_fields = ("price", "date")  # Make fields read-only for existing entries
 
 
 @admin.register(Product)
@@ -9,7 +15,9 @@ class ProductAdmin(admin.ModelAdmin):
         'product_name',
         'store_name',
         'product_url',
-        'price',
+        'current_price',
+        'previous_price',
+        'is_discounted',
         'updated_at'
     ]
 
@@ -17,7 +25,9 @@ class ProductAdmin(admin.ModelAdmin):
         'id',
         'product_name',
         'store_name',
-        'price',
+        'current_price',
+        'previous_price',
+        'is_discounted',
         'updated_at'
     ]
 
@@ -27,5 +37,10 @@ class ProductAdmin(admin.ModelAdmin):
 
     readonly_fields = [
         'id',
-        'updated_at'
+        'updated_at',
+        'previous_price',
+        'is_discounted'
     ]
+
+    inlines = [ProductPriceLineInline]  # Include the inline for ProductPriceLine
+

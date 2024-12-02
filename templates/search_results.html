@@ -5,11 +5,11 @@
     <div class="row pt-4">
         <div class="col-12">
             {% if products %}
-                <h2>Products</h2>
+                <h2>Producten</h2>
                 <div class="row pt-3">
                 {% for product in products %}
 
-                    <div class="col-3">
+                    <div class="col-lg-3 col-12">
                         <div class="content-block p-4">
                              <a href="{{ product.product_url }}">
                             <div class="product-img">
@@ -18,7 +18,13 @@
 
                                 {{ product.product_name }}
                             </a><br/>
-                            <b><span class="price">{{ product.price }}</span></b><br/>
+                            {% if product.is_discounted %}
+                            <span class="price" style="padding-right: 10px;"><s>{{ product.previous_price }}</s></span>
+                            <b><span class="current-price discount-price">{{ product.current_price }}</span></b><br/>
+                            {% else %}
+                            <b><span class="current-price">{{ product.current_price }}</span></b><br/>
+                            {% endif %}
+
                             {{ product.store_name }}<br/>
                         </div>
                     </div>
