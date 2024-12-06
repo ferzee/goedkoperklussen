@@ -20,7 +20,7 @@
                                 {% endif %}
                             </div>
 
-                                {{ product.product_name }}
+                                <p>{{ product.product_name }}</p>
                             </a><br/>
                             {% if product.is_discounted %}
                             <span class="price" style="padding-right: 10px;"><s>{{ product.previous_price }}</s></span>
@@ -29,7 +29,7 @@
                             <b><span class="current-price">{{ product.current_price }}</span></b><br/>
                             {% endif %}
 
-                            {{ product.store_name }}<br/>
+                            <p>{{ product.store_name }}<br/></p>
                         </div>
                     </div>
 
