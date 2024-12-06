@@ -5,7 +5,7 @@ from .models import Product
 
 
 def index(request):
-    products = Product.objects.all()
+    products = Product.objects.filter(current_price__gt=0.0)
     context = {
         "products": products,
     }

@@ -21,7 +21,7 @@ class SitemapExtractor:
         try:
             response = requests.get(self.sitemap_url, headers=headers)
             response.raise_for_status()  # Raises an HTTPError for bad responses (4xx or 5xx)
-            return BeautifulSoup(response.content, 'xml')
+            return BeautifulSoup(response.content, 'lxml')
         except requests.exceptions.RequestException as e:
             print(f"Error fetching the sitemap: {e}")
             return None

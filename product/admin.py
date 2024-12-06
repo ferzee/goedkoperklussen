@@ -15,6 +15,7 @@ class ProductAdmin(admin.ModelAdmin):
         'product_name',
         'store_name',
         'product_url',
+        'img_url',
         'current_price',
         'previous_price',
         'is_discounted',
@@ -43,4 +44,3 @@ class ProductAdmin(admin.ModelAdmin):
     ]
 
     inlines = [ProductPriceLineInline]  # Include the inline for ProductPriceLine
-

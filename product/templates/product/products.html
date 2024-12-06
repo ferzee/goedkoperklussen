@@ -13,7 +13,11 @@
                         <div class="content-block p-4">
                              <a href="{{ product.product_url }}">
                             <div class="product-img">
-                                <img src="/media/product_imgs/default_product.webp" alt="Default Product">
+                                {% if product.img_url %}
+                                <img src="{{ product.img_url }}" alt="{{ product.product_name }}">
+                                {% else %}
+                                <img src="/media/product_imgs/default_product.webp" alt="{{ product.product_name }}">
+                                {% endif %}
                             </div>
 
                                 {{ product.product_name }}

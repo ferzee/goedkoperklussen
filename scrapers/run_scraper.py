@@ -8,7 +8,6 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'goedkoperklussen.settings')
 django.setup()
 
 from sitemap.models import Sitemap
-from product.models import Product
 
 
 class RunScraper:
