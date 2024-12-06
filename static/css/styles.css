@@ -95,7 +95,7 @@ a {
 
 
 /* Only for mobile */
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 1200px) {
 
     h2 {
         font-size: 60px;
