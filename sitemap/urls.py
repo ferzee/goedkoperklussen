@@ -1,6 +1,7 @@
 from django.urls import path
+from rest_framework.routers import DefaultRouter
 
-from . import views
+from .views import SitemapViewSet
 
 router = DefaultRouter()
 router.register(r'sitemaps', SitemapViewSet)

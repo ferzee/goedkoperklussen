@@ -5,7 +5,7 @@ from .models import Sitemap
 from .serializers import SitemapSerializer
 
 class SitemapViewSet(viewsets.ModelViewSet):
-    permission_classes = [APIKeyAuthentication]
+    authentication_classes = [APIKeyAuthentication]
 
     queryset = Sitemap.objects.all()
     serializer_class = SitemapSerializer
