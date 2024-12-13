@@ -59,23 +59,28 @@ class ProductCreateView(APIView):
             print(f"New product {product_name} created. url: {url}")
 
     def post(self, request):
-        # Extract data from the request
-        product_data = request.data
+        # Extract the list of products from the request
+        products_data = request.data.get('products', [])
 
-        # Validate the incoming data using the serializer
-        serializer = ProductSerializer(data=product_data)
-        if serializer.is_valid():
-            # Extract validated data
-            validated_data = serializer.validated_data
-            # Use update_or_create directly in the view
-            Product.objects.update_or_create(
-                product_url=validated_data.get("product_url"),
-                defaults={
-                    "product_name": validated_data.get("product_name"),
-                    "store_name": validated_data.get("store_name"),
-                    "current_price": validated_data.get("current_price"),
-                    "img_url": validated_data.get("img_url"),
-                },
-            )
-            return Response({"message": "Product processed successfully"}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not products_data:
+            return Response({"detail": "No products provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Iterate over each product and validate/update or create
+        for product_data in products_data:
+            serializer = ProductSerializer(data=product_data)
+            if serializer.is_valid():
+                validated_data = serializer.validated_data
+                # Check if the product already exists, and update or create
+                Product.objects.update_or_create(
+                    product_url=validated_data.get("product_url"),
+                    defaults={
+                        "product_name": validated_data.get("product_name"),
+                        "store_name": validated_data.get("store_name"),
+                        "current_price": validated_data.get("current_price"),
+                        "img_url": validated_data.get("img_url"),
+                    },
+                )
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"message": "Products processed successfully"}, status=status.HTTP_200_OK)

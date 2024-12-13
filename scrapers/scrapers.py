@@ -1,16 +1,10 @@
 import requests
+import json
 from bs4 import BeautifulSoup
+
+# remove after completed scraper changes
 import time
 import random
-import django
-from django.core.exceptions import ObjectDoesNotExist
-import os
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'goedkoperklussen.settings')
-django.setup()
-
-from product.models import Product
-from activity.models import Activity
 
 
 class BaseScraper:
@@ -44,45 +38,19 @@ class BaseScraper:
         """
         raise NotImplementedError("Subclasses must implement the `scrape` method.")
 
-    @staticmethod
-    def upsert_product(product_name, store_name, price, url, img_url):
-        try:
-            # Use url as an unique identifier.
-            product = Product.objects.get(product_url=url)
-            product.product_name = product_name
-            product.store_name = store_name
-            product.current_price = price
-            product.img_url = img_url
-
-            product.save()
-            print(f"Product {product_name} updated. url: {url}")
-
-        except ObjectDoesNotExist:
-            new_product = Product(
-                product_name=product_name,
-                store_name=store_name,
-                current_price=price,
-                product_url=url,
-                img_url=img_url
-            )
-
-            new_product.save()
-            print(f"New product {product_name} created. url: {url}")
-
-    @staticmethod
-    def create_activity(activity_name, activity_description):
-        new_activity = Activity(
-            activity_name=activity_name,
-            activity_description=activity_description,
-        )
-        
-        new_activity.save()
-        print(f"{activity_name} created.")
-
 
 class ScraperPraxis(BaseScraper):
-    def scrape(self):
+    def __init__(self, urls, api_url, api_key, batch_size=500):
+        super().__init__(urls=urls)
+        self.batch_size = batch_size
+        self.api_url = api_url
+        self.products = []
+        self.api_key = api_key
 
+    def scrape(self):
+        """
+        Scrapes each URL and collects product data.
+        """
         for url in self.urls:
             html = self.fetch_page(url)
 
@@ -91,66 +59,90 @@ class ScraperPraxis(BaseScraper):
             
             soup = BeautifulSoup(html, 'html.parser')
 
-            # Extract product name
             product_name = soup.title.get_text(strip=True) if soup.title else "Product name not found"
-
             store_name = "Praxis"
+
             img_url = soup.find('picture').find('img')
             img_url = img_url['src']
 
             # Extract price
             price_container = soup.find('ins', class_='pdfi-1e34aan')
-
             if price_container:
                 main_price = price_container.find('p', class_='chakra-text pdfi-dpoqzr').get_text(strip=True)
                 decimal_price = price_container.find('sup', class_='chakra-text pdfi-x924dm').get_text(strip=True)
                 full_price = float(f"{main_price}{decimal_price}".replace(",", "."))
-
-                self.upsert_product(
-                    product_name=product_name,
-                    store_name=store_name,
-                    price=full_price,
-                    url=url,
-                    img_url=img_url
-                )
-
             else:
-                activity_name = "Price not found"
-                activity_description = \
-                    f"Price not found. Check what might be the reason. \nName: {product_name}\nUrl: {url}"
-                self.create_activity(
-                    activity_name=activity_name,
-                    activity_description=activity_description
-                )
+                full_price = 0.0  # Handle missing price case
 
-            # Sleep for a random amount of minutes between 1 and 5 to mimic user behaviour
-            print(f'Done scraping {url}')
-            time.sleep(random.randint(1, 5))
+            product_data = {
+                "product_name": product_name,
+                "store_name": store_name,
+                "current_price": full_price,
+                "product_url": url,
+                "img_url": img_url
+            }
+            self.products.append(product_data)
+
+            print(f'Succesfully scraped {url}')
+
+            if len(self.products) >= self.batch_size:
+                self.send_data_in_batches(self.products)
+                self.products = []
+
+        # Send any remaining products that didn't fill up a full batch
+        if self.products:
+            self.send_data_in_batches(self.products)
+
+    def send_data_in_batches(self, products):
+        """
+        Sends the products in batches to the Django API.
+        """
+        payload = {'products': products}
+        headers = {
+            'Content-Type': 'application/json',
+            'X-API-Key': self.api_key
+        }
+
+        # Send the batch to the API
+        try:
+            response = requests.post(self.api_url, data=json.dumps(payload), headers=headers)
+
+            if response.status_code == 200:
+                print(f"Batch sent successfully. Number of products: {len(products)}")
+            else:
+                print(f"Error sending batch. Status Code: {response.status_code}, Response: {response.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error sending batch: {e}")
 
 
 class ScraperGamma(BaseScraper):
+    def __init__(self, urls, api_url, api_key, batch_size=500):
+        super().__init__(urls)
+        self.batch_size = batch_size  # Define the batch size
+        self.api_url = api_url  # Your Django API endpoint URL
+        self.api_key = api_key  # Store the API key for sending data
+        self.products = []  # List to store all scraped products
+
     def scrape(self):
-        result = []
+        """
+        Scrapes the URLs and collects product data.
+        """
         for url in self.urls:
             html = self.fetch_page(url)
             if not html:
                 continue
-            
+
             soup = BeautifulSoup(html, 'html.parser')
 
-            # Extract product name
+            # Extract product information
             title_div = soup.find('div', class_='pageheader js-pageheader-mobile')
-            product_name = title_div.find('h1', itemprop='name').get_text(strip=True) if title_div else "Title not found"
-
+            product_name = title_div.find('h1', itemprop='name').get_text(
+                strip=True) if title_div else "Title not found"
             store_name = "Gamma"
 
-            # Extract img
+            # Extract image
             meta_tag = soup.find('meta', {'itemprop': 'image'})
-
-            if meta_tag and meta_tag.has_attr('content'):
-                img_url = meta_tag['content']
-            else:
-                img_url = None
+            img_url = meta_tag['content'] if meta_tag and meta_tag.has_attr('content') else None
 
             # Extract price
             price_div = soup.find('div', class_='product-price')
@@ -161,51 +153,84 @@ class ScraperGamma(BaseScraper):
             else:
                 full_price = False
 
-            # Check if there's a price. If not, create an activity
+            # Handle price absence
             if not full_price:
                 activity_name = "Price not found"
                 activity_description = "Price not found. Check what might be the reason."
-                self.create_activity(
-                    activity_name=activity_name,
-                    activity_description=activity_description
-                )
-
+                self.create_activity(activity_name=activity_name, activity_description=activity_description)
             else:
-                self.upsert_product(
-                    product_name=product_name,
-                    store_name=store_name,
-                    price=full_price,
-                    url=url,
-                    img_url=img_url
-                )
+                # Collect product data
+                product_data = {
+                    "product_name": product_name,
+                    "store_name": store_name,
+                    "current_price": full_price,
+                    "product_url": url,
+                    "img_url": img_url
+                }
+                self.products.append(product_data)
 
-            # Sleep for a random amount of minutes between 1 and 5 to mimic user behaviour
+            # If batch size is reached, send the data
+            if len(self.products) >= self.batch_size:
+                self.send_data_in_batches(self.products)
+                self.products = []  # Reset the list after sending
+
+            # Sleep to mimic user behavior
             time.sleep(random.randint(1, 5))
+
+        # Send any remaining products in the batch
+        if self.products:
+            self.send_data_in_batches(self.products)
+
+    def send_data_in_batches(self, products):
+        """
+        Sends the products in batches to the Django API.
+        """
+        payload = {'products': products}  # Wrap the batch in the 'products' key
+        headers = {
+            'Content-Type': 'application/json',
+            'X-API-Key': self.api_key  # Add the API key header here when sending the data
+        }
+
+        # Send the batch to the API
+        try:
+            response = requests.post(self.api_url, data=json.dumps(payload), headers=headers)
+
+            if response.status_code == 200:
+                print(f"Batch sent successfully. Number of products: {len(products)}")
+            else:
+                print(f"Error sending batch. Status Code: {response.status_code}, Response: {response.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error sending batch: {e}")
 
 
 class ScraperKarwei(BaseScraper):
+    def __init__(self, urls, api_url, api_key, batch_size=500):
+        super().__init__(urls)
+        self.batch_size = batch_size  # Define the batch size
+        self.api_url = api_url  # Your Django API endpoint URL
+        self.api_key = api_key  # Store the API key for sending data
+        self.products = []  # List to store all scraped products
+
     def scrape(self):
-        result = []
+        """
+        Scrapes the URLs and collects product data.
+        """
         for url in self.urls:
             html = self.fetch_page(url)
             if not html:
                 continue
-            
+
             soup = BeautifulSoup(html, 'html.parser')
 
-            # Extract product name
+            # Extract product information
             title_div = soup.find('div', class_='pageheader js-pageheader-mobile')
-            product_name = title_div.find('h1', itemprop='name').get_text(strip=True) if title_div else "Title not found"
-
+            product_name = title_div.find('h1', itemprop='name').get_text(
+                strip=True) if title_div else "Title not found"
             store_name = "Karwei"
 
-            # Extract img
+            # Extract image
             meta_tag = soup.find('meta', {'itemprop': 'image'})
-
-            if meta_tag and meta_tag.has_attr('content'):
-                img_url = meta_tag['content']
-            else:
-                img_url = None
+            img_url = meta_tag['content'] if meta_tag and meta_tag.has_attr('content') else None
 
             # Extract price
             price_div = soup.find('div', class_='product-price')
@@ -216,42 +241,52 @@ class ScraperKarwei(BaseScraper):
             else:
                 full_price = False
 
-            # Check if there's a price. If not, create an activity
+            # Handle price absence
             if not full_price:
                 activity_name = "Price not found"
                 activity_description = "Price not found. Check what might be the reason."
-                self.create_activity(
-                    activity_name=activity_name,
-                    activity_description=activity_description
-                )
-
+                self.create_activity(activity_name=activity_name, activity_description=activity_description)
             else:
-                self.upsert_product(
-                    product_name=product_name,
-                    store_name=store_name,
-                    price=full_price,
-                    url=url,
-                    img_url=img_url
-                )
+                # Collect product data
+                product_data = {
+                    "product_name": product_name,
+                    "store_name": store_name,
+                    "current_price": full_price,
+                    "product_url": url,
+                    "img_url": img_url
+                }
+                self.products.append(product_data)
 
-            # Sleep for a random amount of minutes between 1 and 5 to mimic user behaviour
+            # If batch size is reached, send the data
+            if len(self.products) >= self.batch_size:
+                self.send_data_in_batches(self.products)
+                self.products = []  # Reset the list after sending
+
+            # Sleep to mimic user behavior
             time.sleep(random.randint(1, 5))
 
+        # Send any remaining products in the batch
+        if self.products:
+            self.send_data_in_batches(self.products)
 
-# Example usage
-"""
-sm_url = "https://www.praxis.nl//praxisproductpagessitemapindex1.xml"
+    def send_data_in_batches(self, products):
+        """
+        Sends the products in batches to the Django API.
+        """
+        payload = {'products': products}  # Wrap the batch in the 'products' key
+        headers = {
+            'Content-Type': 'application/json',
+            'X-API-Key': self.api_key  # Add the API key header here when sending the data
+        }
 
-extractor = SitemapExtractor(sm_url)
-extractor.extract_urls()
-praxis_urls = extractor.get_urls()
+        # Send the batch to the API
+        try:
+            response = requests.post(self.api_url, data=json.dumps(payload), headers=headers)
 
-praxis_urls = ["https://www.karwei.nl/assortiment/gordijn-crossover-1157-vanilla/p/C63833545"]
-
-praxis_scraper = ScraperKarwei(praxis_urls)
-praxis_scraper.scrape()
-"""
-
-
-
+            if response.status_code == 200:
+                print(f"Batch sent successfully. Number of products: {len(products)}")
+            else:
+                print(f"Error sending batch. Status Code: {response.status_code}, Response: {response.text}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error sending batch: {e}")
 
