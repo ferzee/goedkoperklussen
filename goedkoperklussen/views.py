@@ -10,10 +10,15 @@ def search_results(request):
     query = request.GET.get('q')
     page_number = int(request.GET.get("page", 1))  # Default to page 1
 
+    query_words = query.split()
+
+    search_filter = Q()
+
+    for word in query_words:
+        search_filter &= Q(product_name__icontains=word)
+
     # Filter products based on the search query
-    products = Product.objects.filter(
-        Q(product_name__icontains=query)
-    ).order_by('-created_at')
+    products = Product.objects.filter(search_filter).order_by('-updated_at')
 
     # Pagination setup
     paginate_by = 48
