@@ -5,13 +5,28 @@ from rest_framework import status
 from .serializers import ProductSerializer
 from .models import Product
 from apikey.authentication import APIKeyAuthentication
+from django.core.paginator import Paginator
+from django.http import HttpResponse
+from django.template.loader import render_to_string
 
 
 def index(request):
-    products = Product.objects.filter(current_price__gt=0.0)
-    context = {
-        "products": products,
-    }
+    # Fetch and paginate products
+    products = Product.objects.filter(current_price__gt=0.0).order_by('-created_at')
+    paginate_by = 48
+    paginator = Paginator(products, paginate_by)
+
+    page_number = request.GET.get("page", 1)
+    page_obj = paginator.get_page(page_number)
+
+    # Check if this is an HTMX request
+    if request.headers.get('HX-Request'):
+        # Render only the product list HTML
+        html = render_to_string('partials/products.html', {'page_obj': page_obj}, request)
+        return HttpResponse(html)
+
+    # Otherwise, render the full template
+    context = {"page_obj": page_obj}
     return render(request, "product/products.html", context)
 
 

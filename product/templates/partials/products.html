@@ -1,0 +1,34 @@
+<div class="row pt-3">
+    {% for product in page_obj %}
+        {% if forloop.last %}
+        <div hx-trigger="revealed"
+             hx-get="/?page={{ page_obj.number|add:1 }}"
+             hx-swap="afterend"
+             class="col-lg-3 col-12" id="load-more">
+        {% else %}
+        <div class="col-lg-3 col-12">
+        {% endif %}
+            <div class="content-block p-4">
+                 <a href="{{ product.product_url }}">
+                <div class="product-img">
+                    {% if product.img_url %}
+                    <img src="{{ product.img_url }}" alt="{{ product.product_name }}">
+                    {% else %}
+                    <img src="/media/product_imgs/default_product.webp" alt="{{ product.product_name }}">
+                    {% endif %}
+                </div>
+
+                    <p>{{ product.product_name }}</p>
+                </a><br/>
+                {% if product.is_discounted %}
+                <span class="price" style="padding-right: 10px;"><s>{{ product.previous_price }}</s></span>
+                <b><span class="current-price discount-price">{{ product.current_price }}</span></b><br/>
+                {% else %}
+                <b><span class="current-price">{{ product.current_price }}</span></b><br/>
+                {% endif %}
+
+                <p>{{ product.store_name }}<br/></p>
+            </div>
+        </div>
+    {% endfor %}
+</div>
