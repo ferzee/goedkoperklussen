@@ -1,14 +1,6 @@
-import django
-import os
 import sitemap_extractor
 import scrapers
 from requests.exceptions import RequestException
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'goedkoperklussen.settings')
-django.setup()
-
-from sitemap.models import Sitemap
-
 
 class RunScraper:
     def __init__(self):
