@@ -2,11 +2,6 @@ import requests
 import json
 from bs4 import BeautifulSoup
 
-# remove after completed scraper changes
-import time
-import random
-
-
 class BaseScraper:
     """
     A base scraper class for common functionality.
@@ -40,7 +35,7 @@ class BaseScraper:
 
 
 class ScraperPraxis(BaseScraper):
-    def __init__(self, urls, api_url, api_key, batch_size=500):
+    def __init__(self, urls, api_url, api_key, batch_size=5):
         super().__init__(urls=urls)
         self.batch_size = batch_size
         self.api_url = api_url
