@@ -67,6 +67,6 @@ class RunScraper:
             print(f"Completed scraping {store_name} with {len(urls)} urls")
 
 RunScraper(
-    get_api_url="http://127.0.0.1:8000/sitemaps",
-    post_api_url="http://127.0.0.1:8000/api/products/create",
+    get_api_url="https://www.goedkoopklussen.com/sitemaps",
+    post_api_url="https://www.goedkoopklussen.com/api/products/create",
 )
