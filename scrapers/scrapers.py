@@ -35,7 +35,7 @@ class BaseScraper:
 
 
 class ScraperPraxis(BaseScraper):
-    def __init__(self, urls, api_url, api_key, batch_size=5):
+    def __init__(self, urls, api_url, api_key, batch_size=500):
         super().__init__(urls=urls)
         self.batch_size = batch_size
         self.api_url = api_url
