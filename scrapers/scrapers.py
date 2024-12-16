@@ -84,7 +84,7 @@ class ScraperPraxis(BaseScraper):
                 self.send_data_in_batches(self.products)
                 self.products = []
 
-            time.sleep(random.randint(1, 5))
+            time.sleep(random.randint(1, 3))
 
         # Send any remaining products that didn't fill up a full batch
         if self.products:
@@ -172,7 +172,7 @@ class ScraperGamma(BaseScraper):
                 self.products = []  # Reset the list after sending
 
             # Sleep to mimic user behavior
-            time.sleep(random.randint(1, 5))
+            time.sleep(random.randint(1, 3))
 
         # Send any remaining products in the batch
         if self.products:
@@ -260,7 +260,7 @@ class ScraperKarwei(BaseScraper):
                 self.products = []  # Reset the list after sending
 
             # Sleep to mimic user behavior
-            time.sleep(random.randint(1, 5))
+            time.sleep(random.randint(1, 3))
 
         # Send any remaining products in the batch
         if self.products:
