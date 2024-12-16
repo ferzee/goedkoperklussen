@@ -84,6 +84,8 @@ class ScraperPraxis(BaseScraper):
                 self.send_data_in_batches(self.products)
                 self.products = []
 
+            time.sleep(random.randint(1, 5))
+
         # Send any remaining products that didn't fill up a full batch
         if self.products:
             self.send_data_in_batches(self.products)
