@@ -3,6 +3,9 @@
 //               Header styling                   //
 //                                                //
 //////////////////////////////////////////////////*/
+.app-header, h1, h2, h3, p, a {
+    font-family: "Open Sans", sans-serif;
+}
 
 .app-header {
     background-color: #FF3B3B;
