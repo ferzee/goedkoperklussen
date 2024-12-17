@@ -31,11 +31,17 @@ class SitemapExtractor:
         Extracts URLs from the sitemap and stores them in the `urls` attribute.
         """
         soup = self.fetch_sitemap()
-        if soup:
-            loc_elements = soup.find_all('loc')
-            self.urls = [loc.get_text(strip=True) for loc in loc_elements]
-        else:
-            print("Failed to parse the sitemap.")
+        try:
+            if soup:
+                loc_elements = soup.find_all('loc')
+                self.urls = [loc.get_text(strip=True) for loc in loc_elements]
+            else:
+                print("Failed to parse the sitemap.")
+        except AttributeError as e:
+            print(f'Unexpected error: {e}')
+
+
+
 
     def get_urls(self):
         """

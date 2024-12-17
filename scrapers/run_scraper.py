@@ -14,24 +14,26 @@ class RunScraper:
         all_active_sitemaps = self.get_sitemaps()
 
         for sitemap in all_active_sitemaps:
-            try:
-                extractor = sitemap_extractor.SitemapExtractor(sitemap_url=sitemap['sitemap_url'])
-                extractor.extract_urls()
-                urls = extractor.get_urls()
-                if not urls:
-                    print(f"No urls found in sitemap {sitemap.sitemap_url}")
-                    continue
+            sitemap_url = sitemap['sitemap_url']
+            if sitemap["is_active"]:
+                try:
+                    extractor = sitemap_extractor.SitemapExtractor(sitemap_url=sitemap_url)
+                    extractor.extract_urls()
+                    urls = extractor.get_urls()
+                    if not urls:
+                        print(f"No urls found in sitemap {sitemap_url}")
+                        continue
 
-                self.start_scraper(sitemap['store_name'], urls)
+                    self.start_scraper(sitemap['store_name'], urls)
 
-            except RequestException as e:
-                print(f"Network issue with URL {sitemap.sitemap_url}: {e}")
+                except RequestException as e:
+                    print(f"Network issue with URL {sitemap_url}: {e}")
 
-            except ValueError as e:
-                print(f"Invalid sitemap URL {sitemap.sitemap_url}: {e}")
+                except ValueError as e:
+                    print(f"Invalid sitemap URL {sitemap_url}: {e}")
 
-            except Exception as e:
-                print(f"Unexpected error processing {sitemap.sitemap_url}: {e}")
+                except Exception as e:
+                    print(f"Unexpected error processing {sitemap_url}: {e}")
 
 
     def get_sitemaps(self):
@@ -57,16 +59,18 @@ class RunScraper:
             print(f"Completed scraping {store_name} with {len(urls)} urls")
 
         elif store_name == "Karwei":
-            scraper = scrapers.ScraperPraxis(urls, api_key=self.api_key, api_url=self.post_api_url)
+            scraper = scrapers.ScraperKarwei(urls, api_key=self.api_key, api_url=self.post_api_url)
             scraper.scrape()
             print(f"Completed scraping {store_name} with {len(urls)} urls")
 
         elif store_name == "Praxis":
-            scraper = scrapers.ScraperPraxis(urls, api_key=self.api_key, api_url=self.post_api_url)
+            scraper = scrapers.ScraperGamma(urls, api_key=self.api_key, api_url=self.post_api_url)
             scraper.scrape()
             print(f"Completed scraping {store_name} with {len(urls)} urls")
+
 
 RunScraper(
     get_api_url="https://www.goedkoopklussen.com/sitemaps",
     post_api_url="https://www.goedkoopklussen.com/api/products/create",
 )
+

@@ -1,6 +1,8 @@
 import requests
 import json
 from bs4 import BeautifulSoup
+import time
+import random
 
 class BaseScraper:
     """
@@ -35,7 +37,7 @@ class BaseScraper:
 
 
 class ScraperPraxis(BaseScraper):
-    def __init__(self, urls, api_url, api_key, batch_size=500):
+    def __init__(self, urls, api_url, api_key, batch_size=50):
         super().__init__(urls=urls)
         self.batch_size = batch_size
         self.api_url = api_url
@@ -113,8 +115,8 @@ class ScraperPraxis(BaseScraper):
 
 
 class ScraperGamma(BaseScraper):
-    def __init__(self, urls, api_url, api_key, batch_size=500):
-        super().__init__(urls)
+    def __init__(self, urls, api_url, api_key, batch_size=50):
+        super().__init__(urls=urls)
         self.batch_size = batch_size  # Define the batch size
         self.api_url = api_url  # Your Django API endpoint URL
         self.api_key = api_key  # Store the API key for sending data
@@ -166,6 +168,8 @@ class ScraperGamma(BaseScraper):
                 }
                 self.products.append(product_data)
 
+                print(f'Succesfully scraped {url}')
+
             # If batch size is reached, send the data
             if len(self.products) >= self.batch_size:
                 self.send_data_in_batches(self.products)
@@ -201,8 +205,8 @@ class ScraperGamma(BaseScraper):
 
 
 class ScraperKarwei(BaseScraper):
-    def __init__(self, urls, api_url, api_key, batch_size=500):
-        super().__init__(urls)
+    def __init__(self, urls, api_url, api_key, batch_size=50):
+        super().__init__(urls=urls)
         self.batch_size = batch_size  # Define the batch size
         self.api_url = api_url  # Your Django API endpoint URL
         self.api_key = api_key  # Store the API key for sending data
@@ -253,6 +257,8 @@ class ScraperKarwei(BaseScraper):
                     "img_url": img_url
                 }
                 self.products.append(product_data)
+
+                print(f'Succesfully scraped {url}')
 
             # If batch size is reached, send the data
             if len(self.products) >= self.batch_size:
