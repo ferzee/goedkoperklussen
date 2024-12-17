@@ -6,7 +6,7 @@ import requests
 class RunScraper:
 
     def __init__(self, get_api_url, post_api_url):
-        self.api_key = input('Api key:')
+        self.api_key = ""
         self.post_api_url = post_api_url
         self.get_api_url = get_api_url
         self.headers = {'X-API-Key': self.api_key}
