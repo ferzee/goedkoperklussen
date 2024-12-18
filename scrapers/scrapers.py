@@ -20,7 +20,9 @@ class BaseScraper:
         """
         Fetches the HTML content of a page.
         """
+
         print(f'Scraping {url}')
+
         try:
             response = requests.get(url, headers=self.headers)
             response.raise_for_status()
@@ -69,7 +71,7 @@ class ScraperPraxis(BaseScraper):
                 decimal_price = price_container.find('sup', class_='chakra-text pdfi-x924dm').get_text(strip=True)
                 full_price = float(f"{main_price}{decimal_price}".replace(",", "."))
             else:
-                full_price = 0.0  # Handle missing price case
+                full_price = 0.0
 
             product_data = {
                 "product_name": product_name,
@@ -150,32 +152,24 @@ class ScraperGamma(BaseScraper):
                 decimal_price = price_div.find('span', class_='product-price-decimal').get_text(strip=True)
                 full_price = float(f"{main_price}{decimal_price}")
             else:
-                full_price = False
+                full_price = 0.0
 
-            # Handle price absence
-            if not full_price:
-                activity_name = "Price not found"
-                activity_description = "Price not found. Check what might be the reason."
-                self.create_activity(activity_name=activity_name, activity_description=activity_description)
-            else:
-                # Collect product data
-                product_data = {
-                    "product_name": product_name,
-                    "store_name": store_name,
-                    "current_price": full_price,
-                    "product_url": url,
-                    "img_url": img_url
-                }
-                self.products.append(product_data)
+            product_data = {
+                "product_name": product_name,
+                "store_name": store_name,
+                "current_price": full_price,
+                "product_url": url,
+                "img_url": img_url
+            }
+            self.products.append(product_data)
 
-                print(f'Succesfully scraped {url}')
+            print(f'Succesfully scraped {url}')
 
             # If batch size is reached, send the data
             if len(self.products) >= self.batch_size:
                 self.send_data_in_batches(self.products)
                 self.products = []  # Reset the list after sending
 
-            # Sleep to mimic user behavior
             time.sleep(random.randint(1, 3))
 
         # Send any remaining products in the batch
@@ -240,32 +234,23 @@ class ScraperKarwei(BaseScraper):
                 decimal_price = price_div.find('span', class_='product-price-decimal').get_text(strip=True)
                 full_price = float(f"{main_price}{decimal_price}")
             else:
-                full_price = False
+                full_price = 0.0
 
-            # Handle price absence
-            if not full_price:
-                activity_name = "Price not found"
-                activity_description = "Price not found. Check what might be the reason."
-                self.create_activity(activity_name=activity_name, activity_description=activity_description)
-            else:
-                # Collect product data
-                product_data = {
-                    "product_name": product_name,
-                    "store_name": store_name,
-                    "current_price": full_price,
-                    "product_url": url,
-                    "img_url": img_url
-                }
-                self.products.append(product_data)
+            product_data = {
+                "product_name": product_name,
+                "store_name": store_name,
+                "current_price": full_price,
+                "product_url": url,
+                "img_url": img_url
+            }
+            self.products.append(product_data)
 
-                print(f'Succesfully scraped {url}')
+            print(f'Succesfully scraped {url}')
 
-            # If batch size is reached, send the data
             if len(self.products) >= self.batch_size:
                 self.send_data_in_batches(self.products)
                 self.products = []  # Reset the list after sending
 
-            # Sleep to mimic user behavior
             time.sleep(random.randint(1, 3))
 
         # Send any remaining products in the batch
