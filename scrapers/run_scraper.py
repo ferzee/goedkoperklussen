@@ -63,7 +63,7 @@ class RunScraper:
             scraper.scrape()
             print(f"Completed scraping {store_name} with {len(urls)} urls")
 
-        elif store_name == "Praxis":
+        elif store_name == "Gamma":
             scraper = scrapers.ScraperGamma(urls, api_key=self.api_key, api_url=self.post_api_url)
             scraper.scrape()
             print(f"Completed scraping {store_name} with {len(urls)} urls")
