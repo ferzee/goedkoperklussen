@@ -38,7 +38,7 @@ class ProductCreateView(APIView):
         try:
             # Use url as an unique identifier.
             product = Product.objects.get(product_url=url)
-            product.product_name = product_name
+            product.name = product_name
             product.store_name = store_name
             product.current_price = price
             product.img_url = img_url

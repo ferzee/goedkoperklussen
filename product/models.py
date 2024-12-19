@@ -2,8 +2,9 @@ from django.db import models
 
 
 class Product(models.Model):
-    product_name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
     store_name = models.CharField(max_length=100)
+    ean = models.CharField(max_length=20, null=True, blank=True)
     current_price = models.FloatField(default=0.0)
     previous_price = models.FloatField(default=0.0, editable=False)
     is_discounted = models.BooleanField(default=False, editable=False)
@@ -15,7 +16,7 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.product_name
+        return self.name
 
     def save(self, *args, **kwargs):
         is_new = self.pk is None
@@ -40,4 +41,4 @@ class ProductPriceLine(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.product.product_name} - {self.price} on {self.date}"
+        return f"{self.product.name} - {self.price} on {self.date}"

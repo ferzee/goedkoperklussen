@@ -12,7 +12,7 @@ class ProductPriceLineInline(admin.TabularInline):
 class ProductAdmin(admin.ModelAdmin):
     fields = [
         'id',
-        'product_name',
+        'name',
         'store_name',
         'product_url',
         'img_url',
@@ -24,7 +24,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     list_display = [
         'id',
-        'product_name',
+        'name',
         'store_name',
         'current_price',
         'previous_price',
@@ -33,7 +33,7 @@ class ProductAdmin(admin.ModelAdmin):
     ]
 
     list_display_links = [
-        'product_name'
+        'name'
     ]
 
     readonly_fields = [

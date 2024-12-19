@@ -12,13 +12,13 @@
                  <a href="{{ product.product_url }}">
                 <div class="product-img">
                     {% if product.img_url %}
-                    <img src="{{ product.img_url }}" alt="{{ product.product_name }}">
+                    <img src="{{ product.img_url }}" alt="{{ product.name }}">
                     {% else %}
-                    <img src="/media/product_imgs/default_product.webp" alt="{{ product.product_name }}">
+                    <img src="/media/product_imgs/default_product.webp" alt="{{ product.name }}">
                     {% endif %}
                 </div>
 
-                    <p>{{ product.product_name }}</p>
+                    <p>{{ product.name }}</p>
                 </a><br/>
                 {% if product.is_discounted %}
                 <span class="price" style="padding-right: 10px;"><s>{{ product.previous_price }}</s></span>
