@@ -15,7 +15,7 @@ def search_results(request):
     search_filter = Q()
 
     for word in query_words:
-        search_filter &= Q(product_name__icontains=word)
+        search_filter &= Q(name__icontains=word)
 
     # Filter products based on the search query
     products = Product.objects.filter(search_filter).order_by('-updated_at')
