@@ -6,7 +6,7 @@ import requests
 class RunScraper:
 
     def __init__(self, get_api_url, post_api_url):
-        self.api_key = ""
+        self.api_key = "9dc233df5b39414d8aff42ea40fd5eb6"
         self.post_api_url = post_api_url
         self.get_api_url = get_api_url
         self.headers = {'X-API-Key': self.api_key}
@@ -70,7 +70,7 @@ class RunScraper:
 
 
 RunScraper(
-    get_api_url="https://www.goedkoopklussen.com/sitemaps",
-    post_api_url="https://www.goedkoopklussen.com/api/products/create",
+    get_api_url="https://goedkoopklussen.com/sitemaps/",
+    post_api_url="https://goedkoopklussen.com/api/products/create",
 )
 

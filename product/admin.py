@@ -13,6 +13,8 @@ class ProductAdmin(admin.ModelAdmin):
     fields = [
         'id',
         'name',
+        'description',
+        'ean_code',
         'store_name',
         'product_url',
         'img_url',
@@ -25,6 +27,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = [
         'id',
         'name',
+        'ean_code',
         'store_name',
         'current_price',
         'previous_price',
@@ -42,5 +45,7 @@ class ProductAdmin(admin.ModelAdmin):
         'previous_price',
         'is_discounted'
     ]
+
+    search_fields = ["name", "ean_code"]
 
     inlines = [ProductPriceLineInline]  # Include the inline for ProductPriceLine

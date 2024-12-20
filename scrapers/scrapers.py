@@ -3,6 +3,7 @@ import json
 from bs4 import BeautifulSoup
 import time
 import random
+import re
 
 class BaseScraper:
     """
@@ -39,7 +40,7 @@ class BaseScraper:
 
 
 class ScraperPraxis(BaseScraper):
-    def __init__(self, urls, api_url, api_key, batch_size=50):
+    def __init__(self, urls, api_url, api_key, batch_size=5):
         super().__init__(urls=urls)
         self.batch_size = batch_size
         self.api_url = api_url
@@ -59,12 +60,18 @@ class ScraperPraxis(BaseScraper):
             soup = BeautifulSoup(html, 'html.parser')
 
             product_name = soup.title.get_text(strip=True) if soup.title else "Product name not found"
+
+            product_description_div = soup.find('div', class_='mxd-description-container').find('div')
+            product_description = product_description_div.get_text(strip=True) if product_description_div else ""
+
+            ean_div = soup.find('ul', class_='eans-list').find_all('li')
+            ean_code = [ean_code.get_text(strip=True) for ean_code in ean_div][0] if ean_div else ""
+
             store_name = "Praxis"
 
             img_url = soup.find('picture').find('img')
             img_url = img_url['src']
 
-            # Extract price
             price_container = soup.find('ins', class_='pdfi-1e34aan')
             if price_container:
                 main_price = price_container.find('p', class_='chakra-text pdfi-dpoqzr').get_text(strip=True)
@@ -75,6 +82,8 @@ class ScraperPraxis(BaseScraper):
 
             product_data = {
                 "product_name": product_name,
+                "product_description": product_description,
+                "ean_code": ean_code,
                 "store_name": store_name,
                 "current_price": full_price,
                 "product_url": url,
@@ -117,7 +126,7 @@ class ScraperPraxis(BaseScraper):
 
 
 class ScraperGamma(BaseScraper):
-    def __init__(self, urls, api_url, api_key, batch_size=50):
+    def __init__(self, urls, api_url, api_key, batch_size=5):
         super().__init__(urls=urls)
         self.batch_size = batch_size  # Define the batch size
         self.api_url = api_url  # Your Django API endpoint URL
@@ -135,17 +144,21 @@ class ScraperGamma(BaseScraper):
 
             soup = BeautifulSoup(html, 'html.parser')
 
-            # Extract product information
             title_div = soup.find('div', class_='pageheader js-pageheader-mobile')
             product_name = title_div.find('h1', itemprop='name').get_text(
                 strip=True) if title_div else "Title not found"
+
+            description_div = soup.find('div', itemprop='description')
+            product_description = description_div.text.strip() if description_div else ""
+
+            ean_row = soup.find('th', string=re.compile(r'^\s*EAN\s*$', re.IGNORECASE))
+            ean_code = ean_row.find_next('td').find('span', class_='feature-value').text.strip() if ean_row else ""
+
             store_name = "Gamma"
 
-            # Extract image
             meta_tag = soup.find('meta', {'itemprop': 'image'})
             img_url = meta_tag['content'] if meta_tag and meta_tag.has_attr('content') else None
 
-            # Extract price
             price_div = soup.find('div', class_='product-price')
             if price_div:
                 main_price = price_div.find('div', class_='product-price-current').get_text(strip=True)
@@ -156,6 +169,8 @@ class ScraperGamma(BaseScraper):
 
             product_data = {
                 "product_name": product_name,
+                "product_description": product_description,
+                "ean_code": ean_code,
                 "store_name": store_name,
                 "current_price": full_price,
                 "product_url": url,
@@ -199,7 +214,7 @@ class ScraperGamma(BaseScraper):
 
 
 class ScraperKarwei(BaseScraper):
-    def __init__(self, urls, api_url, api_key, batch_size=50):
+    def __init__(self, urls, api_url, api_key, batch_size=5):
         super().__init__(urls=urls)
         self.batch_size = batch_size  # Define the batch size
         self.api_url = api_url  # Your Django API endpoint URL
@@ -217,17 +232,21 @@ class ScraperKarwei(BaseScraper):
 
             soup = BeautifulSoup(html, 'html.parser')
 
-            # Extract product information
             title_div = soup.find('div', class_='pageheader js-pageheader-mobile')
             product_name = title_div.find('h1', itemprop='name').get_text(
                 strip=True) if title_div else "Title not found"
+
+            description_div = soup.find('div', itemprop='description')
+            product_description = description_div.text.strip() if description_div else ""
+
+            ean_row = soup.find('th', string=re.compile(r'^\s*EAN\s*$', re.IGNORECASE))
+            ean_code = ean_row.find_next('td').find('span', class_='feature-value').text.strip() if ean_row else ""
+
             store_name = "Karwei"
 
-            # Extract image
             meta_tag = soup.find('meta', {'itemprop': 'image'})
             img_url = meta_tag['content'] if meta_tag and meta_tag.has_attr('content') else None
 
-            # Extract price
             price_div = soup.find('div', class_='product-price')
             if price_div:
                 main_price = price_div.find('div', class_='product-price-current').get_text(strip=True)
@@ -238,6 +257,8 @@ class ScraperKarwei(BaseScraper):
 
             product_data = {
                 "product_name": product_name,
+                "product_description": product_description,
+                "ean_code": ean_code,
                 "store_name": store_name,
                 "current_price": full_price,
                 "product_url": url,
@@ -277,4 +298,3 @@ class ScraperKarwei(BaseScraper):
                 print(f"Error sending batch. Status Code: {response.status_code}, Response: {response.text}")
         except requests.exceptions.RequestException as e:
             print(f"Error sending batch: {e}")
-

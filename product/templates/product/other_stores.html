@@ -1,0 +1,82 @@
+{% include "header.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3 col-12">
+            <div class="product-img">
+                {% if product.img_url %}
+                <img src="{{ product.img_url }}" alt="{{ product.name }}">
+                {% else %}
+                <img src="/media/product_imgs/no_img.png" alt="{{ product.name }}">
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-lg-9 col-12">
+            <div class="p-5">
+                <h2><a href="{{ product.url }}">{{ product.name }}</a></h2>
+                    {% if product.current_price > 0.0 %}
+                        {% if product.is_discounted %}
+                        <span class="price" style="padding-right: 10px;"><s>&#8364; {{ product.previous_price|floatformat:2 }}</s></span>
+                        <b><span class="current-price discount-price">&#8364; {{ product.current_price|floatformat:2 }}</span></b>
+                        {% else %}
+                        <b><span class="current-price">&#8364; {{ product.current_price|floatformat:2 }}</span></b>
+                        {% endif %}
+                    {% else %}
+                        <span class="no-price">Geen prijs gevonden</span>
+                    {% endif %}
+                <p>{{ product.store_name}}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row pt-5">
+        {% if related_products %}
+
+        <h3 class="pb-4">Andere aanbieders</h3>
+
+            {% for related_product in related_products %}
+            <div class="col-lg-3 col-12">
+                <div class="content-block p-4">
+                    <div class="product-info-block">
+                    <a href="{{ related_product.product_url }}">
+                    <div class="product-img">
+                        {% if product.img_url %}
+                        <img src="{{ related_product.img_url }}" alt="{{ related_product.name }}">
+                        {% else %}
+                        <img src="/media/product_imgs/no_img.png" alt="{{ related_product.name }}">
+                        {% endif %}
+                    </div>
+                    <p class="product-title">{{ related_product.name }}</p>
+                    </a><br/>
+                    </div>
+                    <div class="row">
+                        <div class="price-block col-6">
+                            {% if related_product.current_price > 0.0 %}
+                                {% if related_product.is_discounted %}
+                                <span class="price" style="padding-right: 10px;"><s>&#8364; {{ related_product.previous_price|floatformat:2 }}</s></span>
+                                <b><span class="current-price discount-price">&#8364; {{ related_product.current_price|floatformat:2 }}</span></b>
+                                {% else %}
+                                <b><span class="current-price">&#8364; {{ related_product.current_price|floatformat:2 }}</span></b>
+                                {% endif %}
+                            {% else %}
+                                <span class="no-price">Geen prijs gevonden</span>
+                            {% endif %}
+                            <span class="store-name">{{ related_product.store_name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+
+        {% else %}
+        <div class="content-block">
+            <p>Niet gevonden bij andere winkels.</p>
+        </div>
+        {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

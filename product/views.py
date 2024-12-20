@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,34 +11,50 @@ from django.template.loader import render_to_string
 
 
 def index(request):
-    # Fetch and paginate products
     products = Product.objects.filter(current_price__gt=0.0).order_by('-created_at')
+
     paginate_by = 48
     paginator = Paginator(products, paginate_by)
 
     page_number = request.GET.get("page", 1)
     page_obj = paginator.get_page(page_number)
 
-    # Check if this is an HTMX request
     if request.headers.get('HX-Request'):
-        # Render only the product list HTML
         html = render_to_string('partials/products.html', {'page_obj': page_obj}, request)
         return HttpResponse(html)
 
-    # Otherwise, render the full template
-    context = {"page_obj": page_obj}
-    return render(request, "product/products.html", context)
+    context = {
+        'page_obj': page_obj,
+    }
+    return render(request, 'product/products.html', context)
+
+
+def other_stores(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    if product.ean_code:
+        related_products = Product.objects.filter(ean_code=product.ean_code).exclude(pk=product.id)
+    else:
+        related_products = []
+
+    context = {
+        'product': product,
+        'related_products': related_products
+    }
+
+    return render(request, 'product/other_stores.html', context)
 
 
 class ProductCreateView(APIView):
     authentication_classes = [APIKeyAuthentication]  # Require API Key authentication
 
     @staticmethod
-    def upsert_product(product_name, store_name, price, url, img_url):
+    def upsert_product(product_name, product_description, ean_code, store_name, price, url, img_url):
         try:
             # Use url as an unique identifier.
             product = Product.objects.get(product_url=url)
             product.name = product_name
+            product.description = product_description
+            ean_code = ean_code
             product.store_name = store_name
             product.current_price = price
             product.img_url = img_url
@@ -48,7 +64,9 @@ class ProductCreateView(APIView):
 
         except ObjectDoesNotExist:
             new_product = Product(
-                product_name=product_name,
+                name=product_name,
+                description=product_description,
+                ean_code=ean_code,
                 store_name=store_name,
                 current_price=price,
                 product_url=url,
@@ -70,14 +88,17 @@ class ProductCreateView(APIView):
             serializer = ProductSerializer(data=product_data)
             if serializer.is_valid():
                 validated_data = serializer.validated_data
+
                 # Check if the product already exists, and update or create
-                Product.objects.update_or_create(
+                product, created = Product.objects.update_or_create(
                     product_url=validated_data.get("product_url"),
                     defaults={
-                        "product_name": validated_data.get("product_name"),
+                        "name": validated_data.get("product_name"),
+                        "description": validated_data.get("product_description"),
+                        "ean_code": validated_data.get("ean_code"),
                         "store_name": validated_data.get("store_name"),
                         "current_price": validated_data.get("current_price"),
-                        "img_url": validated_data.get("img_url"),
+                        "img_url": validated_data.get("img_url", ""),
                     },
                 )
             else:

@@ -33,6 +33,11 @@
 //                                                //
 //////////////////////////////////////////////////*/
 
+a {
+    text-decoration: none !important;
+    color: #82837E;
+}
+
 h1, h3, p {
     color: #82837E;
 }
@@ -43,9 +48,7 @@ h2 {
 }
 
 
-a {
-    text-decoration: none !important;
-}
+
 
 
 .current-price {
@@ -54,6 +57,10 @@ a {
 
 .discount-price {
     color: #FF3B3B !important;
+}
+
+.no-price {
+    font-size: 18px;
 }
 
 .product-img {
@@ -70,6 +77,9 @@ a {
 }
 
 .content-block {
+    display: flex;
+    flex-direction: column;
+    position: relative;
     background-color: #fff;
     padding: 20px;
     border-radius: 10px;
@@ -80,6 +90,14 @@ a {
     color: #82837E;
 }
 
+.product-info-block {
+    height: 350px;
+}
+
+.store-name {
+    display: block;
+    margin-top: 5px;
+}
 
 .bg {
     background-color: #F9F9F9 !important;
@@ -87,6 +105,31 @@ a {
 
 .small-text {
     font-size: 9pt;
+}
+
+.btn-small {
+    display: inline-block;
+    background-color: #FF3B3B !important;
+    color: white !important;
+    padding: 10px 20px;
+    text-decoration: none;
+    font-size: 12px;
+
+
+    border-radius: 5px;
+    border: none;
+    text-align: left;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-small:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+}
+
+.btn-small:active {
+    background-color: #9b2d1f;
+    transform: translateY(0);
 }
 
 

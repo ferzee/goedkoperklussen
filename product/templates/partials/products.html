@@ -1,34 +1,75 @@
 <div class="row pt-3">
     {% for product in page_obj %}
-        {% if forloop.last %}
+        {% if forloop.last and not is_last_page %}
         <div hx-trigger="revealed"
-             hx-get="/?page={{ page_obj.number|add:1 }}"
+             hx-get="{% url 'search_results' %}?q={{ query }}&page={{ page_obj.number|add:1 }}"
              hx-swap="afterend"
              class="col-lg-3 col-12" id="load-more">
         {% else %}
         <div class="col-lg-3 col-12">
         {% endif %}
             <div class="content-block p-4">
-                 <a href="{{ product.product_url }}">
+                <div class="product-info-block">
+                <a href="{{ product.product_url }}">
                 <div class="product-img">
                     {% if product.img_url %}
                     <img src="{{ product.img_url }}" alt="{{ product.name }}">
                     {% else %}
-                    <img src="/media/product_imgs/default_product.webp" alt="{{ product.name }}">
+                    <img src="/media/product_imgs/no_img.png" alt="{{ product.name }}">
                     {% endif %}
                 </div>
-
-                    <p>{{ product.name }}</p>
+                <p class="product-title">{{ product.name }}</p>
                 </a><br/>
-                {% if product.is_discounted %}
-                <span class="price" style="padding-right: 10px;"><s>{{ product.previous_price }}</s></span>
-                <b><span class="current-price discount-price">{{ product.current_price }}</span></b><br/>
-                {% else %}
-                <b><span class="current-price">{{ product.current_price }}</span></b><br/>
-                {% endif %}
+                </div>
+                <div class="row">
+                    <div class="price-block col-6">
+                        {% if product.current_price > 0.0 %}
+                            {% if product.is_discounted %}
+                            <span class="price" style="padding-right: 10px;"><s>&#8364; {{ product.previous_price|floatformat:2 }}</s></span>
+                            <b><span class="current-price discount-price">&#8364; {{ product.current_price|floatformat:2 }}</span></b>
+                            {% else %}
+                            <b><span class="current-price">&#8364; {{ product.current_price|floatformat:2 }}</span></b>
+                            {% endif %}
+                        {% else %}
+                            <span class="no-price">Geen prijs gevonden</span>
+                        {% endif %}
+                        <span class="store-name">{{ product.store_name }}</span>
+                    </div>
 
-                <p>{{ product.store_name }}<br/></p>
+                    <div class="col-6">
+                        <a href="/product/{{ product.id }}" class="btn-small">Vergelijk aanbieders</a>
+                    </div>
+                </div>
+
+
             </div>
         </div>
     {% endfor %}
 </div>
+
+<script>
+    const maxLength = 50;
+
+    // Function to truncate product titles
+    function truncateProductTitles() {
+        const titleElements = document.querySelectorAll('.product-title'); // Select all product titles
+        titleElements.forEach(titleElement => {
+            const originalText = titleElement.dataset.originalText || titleElement.textContent;
+            if (originalText.length > maxLength) {
+                titleElement.textContent = originalText.slice(0, maxLength) + '...';
+            } else {
+                titleElement.textContent = originalText;
+            }
+            // Save original text for future re-truncation
+            titleElement.dataset.originalText = originalText;
+        });
+    }
+
+    // Initial truncation
+    truncateProductTitles();
+
+    // Reapply truncation after new content is loaded via infinite scrolling
+    document.body.addEventListener('htmx:afterSettle', () => {
+        truncateProductTitles();
+    });
+</script>

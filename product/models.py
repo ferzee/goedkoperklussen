@@ -3,8 +3,9 @@ from django.db import models
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
     store_name = models.CharField(max_length=100)
-    ean = models.CharField(max_length=20, null=True, blank=True)
+    ean_code = models.CharField(max_length=20, null=True, blank=True)
     current_price = models.FloatField(default=0.0)
     previous_price = models.FloatField(default=0.0, editable=False)
     is_discounted = models.BooleanField(default=False, editable=False)
